@@ -18,9 +18,10 @@ export class PostsService {
         data: {
           backgroundImage: dto.backgroundImage,
           content: dto.content,
-          decription: dto.desciption,
+          description: dto.desciption,
           title: dto.title,
           userID,
+          hashTags: [...dto.hashTags],
         },
       });
       return post;
@@ -54,13 +55,28 @@ export class PostsService {
   async findOnePostByUserID(id: string) {
     const post = await this.prisma.post.findUnique({
       where: {
-        userID: id,
+        
       },
     });
     return post;
   }
 
-  async updatePost(id: string, dto: UpdatePostDto) {}
+  async updatePost(id: string, dto: UpdatePostDto) {
+    try {
+      const post = await this.prisma.post.update({
+        where: {
+          id
+        }
+        ,
+        data: {
+          
+        }
+      })
+    } catch (error) {
+      throw new Error(error)
+      
+    }
+  }
 
   async deletePost(id: string, userID: string) {
     const post = await this.prisma.post.findUnique({
@@ -71,11 +87,12 @@ export class PostsService {
     if (!post) {
       throw new NotFoundException(`No post found for ${id}`);
     }
-    if (post.userID === userID) {
+    if (post.userID !== userID) {
       throw new BadRequestException(
         `You can only delete a post you created yourself.`,
       );
     }
+      
     const item = await this.prisma.post.delete({
       where: {
         id: id,

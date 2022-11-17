@@ -60,7 +60,7 @@ export class PostsController {
   async getOnPostById(@Param('id') id: string, @Res() res: Response) {
     const post = await this.postsService.findOnePostById(id);
     if (!post) {
-      throw new NotFoundException(`No post found for ${id}`);
+      throw new NotFoundException(`No post found.`);
     }
     return res.status(200).json({
       status: true,
@@ -85,7 +85,7 @@ export class PostsController {
 
   @Delete('delete/:id')
   async deletePost(
-    @Param('"id') id: string,
+    @Param('id') id: string,
     @GetUser() user: User,
     @Res() res: Response,
   ) {

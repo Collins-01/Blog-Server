@@ -19,7 +19,7 @@ export class AuthService {
 
   async registerWithEmail(dto: CreateEmailUserDto) {
     const data = await this.userService.create(dto);
-    const { hash, isVerified, ...user } = data;
+    const { hash, isEmailConfirmed, ...user } = data;
     const accessToken = this.jwtAuthService.signToken(data);
     return {
       user,
@@ -43,7 +43,7 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials.');
     }
     const { accessToken } = this.jwtAuthService.signToken(res);
-    const { hash, isVerified, ...user } = res;
+    const { hash, isEmailConfirmed, ...user } = res;
     return {
       accessToken,
       user,
