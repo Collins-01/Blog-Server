@@ -2,10 +2,15 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-
 } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  Meta,
+  Page,
+  PageMetaParameters,
+  PageOptions,
+} from 'src/types/pagination';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
@@ -30,9 +35,15 @@ export class PostsService {
     }
   }
 
-  async getAllPosts() {
-    const posts = await this.prisma.post.findMany();
-    return posts;
+  async getAllPosts(pageOptions: PageOptions) {
+    const posts = await this.prisma.post.findMany({
+      take: pageOptions.take,
+      skip: pageOptions.skip,
+    });
+    const itemCount = await this.prisma.post.count();
+    const meta = new Meta({ itemCount, pageOptions });
+    const page = new Page(posts, meta);
+    return page;
   }
 
   async getAllMyPosts(id: string) {
@@ -54,9 +65,7 @@ export class PostsService {
 
   async findOnePostByUserID(id: string) {
     const post = await this.prisma.post.findUnique({
-      where: {
-        
-      },
+      where: {},
     });
     return post;
   }
@@ -65,16 +74,12 @@ export class PostsService {
     try {
       const post = await this.prisma.post.update({
         where: {
-          id
-        }
-        ,
-        data: {
-          
-        }
-      })
+          id,
+        },
+        data: {},
+      });
     } catch (error) {
-      throw new Error(error)
-      
+      throw new Error(error);
     }
   }
 
@@ -92,7 +97,7 @@ export class PostsService {
         `You can only delete a post you created yourself.`,
       );
     }
-      
+
     const item = await this.prisma.post.delete({
       where: {
         id: id,

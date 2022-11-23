@@ -11,16 +11,16 @@ datasource db {
 }
 
 model User {
-  id               String    @unique @default(cuid())
-  email            String    @unique
+  id               String   @unique @default(cuid())
+  email            String   @unique
   hash             String?
   firstName        String
   lastName         String
-  provider         Provider  @default(email)
-  isSocialAuth     Boolean   @default(false)
-  isEmailConfirmed Boolean   @default(false)
+  provider         Provider @default(email)
+  isSocialAuth     Boolean  @default(false)
+  isEmailConfirmed Boolean  @default(false)
   posts            Post[]
-  comments         Comment[]
+  // comments         Comment[]
 
   @@map("users")
 }
@@ -43,9 +43,9 @@ model Post {
   // claps           String[] @default([])
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  userID          String
-  user            User      @relation(fields: [userID], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  comments        Comment[]
+  authorID        String
+  user            User      @relation(fields: [authorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  comments        Comment[] 
 
   @@map("posts")
 }
@@ -56,11 +56,9 @@ model Comment {
   postID    String
   author    String //FirstName + Lastname
   authorID  String
-  user      User     @relation(fields: [authorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Post      Post?    @relation(fields: [postId], references: [id])
-  postId    String?
+  Post      Post?    @relation(fields: [postID], references: [id])
 
   @@map("comments")
 }

@@ -8,17 +8,20 @@ import { PrismaModule } from './prisma/prisma.module';
 
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    
     }),
     PrismaModule,
     UsersModule,
     AuthModule,
     PostsModule,
     CommentsModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,6 +9,7 @@ import {
   UseGuards,
   Res,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { Response } from 'express';
 import { GetUser } from 'src/auth/decorators/get-current-user.decorator';
 import { User } from '@prisma/client';
+import { PageOptions } from 'src/types/pagination';
 
 @Controller('posts')
 @UseGuards(JwtAuthGuard)
@@ -24,7 +26,11 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post('create')
-  async createPost(@Body() dto: CreatePostDto, @Res() res: Response,@GetUser() user: User,) {
+  async createPost(
+    @Body() dto: CreatePostDto,
+    @Res() res: Response,
+    @GetUser() user: User,
+  ) {
     const post = await this.postsService.createPosts(dto, user.id);
     return res.status(201).json({
       status: true,
@@ -35,18 +41,17 @@ export class PostsController {
   }
 
   @Get('all')
-  async getAllPosts(@Res() res: Response) {
-    const posts = await this.postsService.getAllPosts();
+  async getAllPosts(@Res() res: Response, @Query() pageOptions: PageOptions) {
+    const data = await this.postsService.getAllPosts(pageOptions);
+
     return res.status(200).json({
       status: true,
-      data: {
-        posts: posts,
-      },
+      data,
     });
   }
 
   @Get('all/me')
-  async getMyPosts(id: string, @Res() res: Response, @GetUser() user: User,) {
+  async getMyPosts(id: string, @Res() res: Response, @GetUser() user: User) {
     const posts = await this.postsService.getAllMyPosts(user.id);
     return res.status(200).json({
       status: true,
