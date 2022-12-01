@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import DatabaseService from 'src/database/database.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import PostModel from './models/post.model';
@@ -60,5 +60,44 @@ export default class PostsRepository {
     );
     console.log(response.rows[0]);
     return new PostModel(response.rows[0]);
+  }
+
+  async deletePost(id:number) {
+    const response = await this.databaseService.runQuery(`
+      DELETE FROM posts
+      WHERE id = $1
+
+      
+    `,[id]);
+    if(response.rowCount === 0){
+      throw new NotFoundException();
+    }
+    
+  }
+
+  async findPostById(id: number) {
+    const response = await this.databaseService.runQuery(
+      `
+    SELECT * FROM posts
+    WHERE id = $1
+    `,
+      [id],
+    );
+    console.log(`Response from getting single post: ${response.rows}`)
+    if (!response.rows[0]) {
+      throw new NotFoundException();
+    }
+    return new PostModel(response.rows[0]);
+  }
+  async findPostByAuthorId(id:number){
+    const response = await this.databaseService.runQuery(`
+      SELECT * FROM  posts 
+      WHERE author_id = $1
+    `,[id])
+
+    if(response.rowCount === 0){
+      throw new NotFoundException();
+    }
+    return  response.rows.map((e)=>new PostModel(e))
   }
 }

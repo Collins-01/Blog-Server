@@ -19,6 +19,7 @@ import { Response } from 'express';
 import { GetUser } from 'src/auth/decorators/get-current-user.decorator';
 import { User } from '@prisma/client';
 import { PageOptions } from 'src/types/pagination';
+import FindOneParams from 'src/utils/find_one_params';
 
 @Controller('posts')
 // @UseGuards(JwtAuthGuard)
@@ -67,8 +68,8 @@ export class PostsController {
   }
 
   @Get(':id')
-  async getOnPostById(@Param('id') id: string, @Res() res: Response) {
-    const post = await this.postsService.findOnePostById(id);
+  async getOnPostById(@Param() {id}: FindOneParams, @Res() res: Response) {
+    const post = await this.postsService.findOnePostById(+id);
     if (!post) {
       throw new NotFoundException(`No post found.`);
     }
@@ -80,26 +81,24 @@ export class PostsController {
     });
   }
 
-  async findOnePostByUserID(id: string, @Res() res: Response) {
-    const post = await this.postsService.findOnePostByUserID(id);
-    if (!post) {
-      throw new NotFoundException(`No post found for ${id}`);
-    }
+  @Get('author/:id')
+  async findOnePostByUserID(@Param() {id}: FindOneParams, @Res() res: Response) {
+    const posts = await this.postsService.findOnePostByUserID(id);
     return res.status(200).json({
       status: true,
       data: {
-        post,
+        ...posts,
       },
     });
   }
 
-  @Delete('delete/:id')
+  @Delete(':id')
   async deletePost(
-    @Param('id') id: string,
+    @Param() {id}: FindOneParams,
     @GetUser() user: User,
     @Res() res: Response,
   ) {
-    const post = await this.postsService.deletePost(id, user.id);
+    await this.postsService.deletePost(+id);
     return res.status(200).json({
       status: true,
       message: `Successfully deleted  post ${id}.`,
