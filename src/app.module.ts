@@ -8,40 +8,61 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { EmailModule } from './email/email.module';
-// import DatabaseModule from './database/database.module';
+import DatabaseModule from './database/database.module';
 import * as Joi from 'joi';
 import { APP_PIPE } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // validationSchema: Joi.object({
-      //   POSTGRES_HOST: Joi.string().required(),
-      //   POSTGRES_PORT: Joi.number().required(),
-      //   POSTGRES_USER: Joi.string().required(),
-      //   POSTGRES_PASSWORD: Joi.string().required(),
-      //   POSTGRES_DB: Joi.string().required(),
-      // }),
+      validationSchema: Joi.object({
+        // * Postgres
+        POSTGRES_HOST: Joi.string().required(),
+        POSTGRES_PORT: Joi.number().required(),
+        POSTGRES_USER: Joi.string().required(),
+        POSTGRES_PASSWORD: Joi.string().required(),
+        POSTGRES_DB: Joi.string().required(),
+        //* Emails
+        EMAIL_SERVICE: Joi.string().required(),
+        EMAIL_USER: Joi.string().required(),
+        EMAIL_PASSWORD: Joi.string().required(),
+      }),
     }),
-    // DatabaseModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-      
-    //   useFactory: (configService: ConfigService) => ({
-    //     host: configService.get('POSTGRES_HOST'),
-    //     port: configService.get('POSTGRES_PORT'),
-    //     user: configService.get('POSTGRES_USER'),
-    //     password: configService.get('POSTGRES_PASSWORD'),
-    //     database: configService.get('POSTGRES_DB'),
-    //   }),
-    // }),
+    DatabaseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+
+      useFactory: (configService: ConfigService) => ({
+        host: configService.get('POSTGRES_HOST') ?? 'localhost',
+        port: configService.get('POSTGRES_PORT') ?? 5454,
+        user: configService.get('POSTGRES_USER') ?? 'postgres',
+        password: configService.get('POSTGRES_PASSWORD') ?? '123',
+        database: configService.get('POSTGRES_DB') ?? 'nest',
+      }),
+    }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     UsersModule,
     AuthModule,
     PostsModule,
     CommentsModule,
-    EmailModule,
+    EmailModule.register({
+      password: '',
+      service: '',
+      user: '',
+    }),
+
+    EmailModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        service: configService.get<string>('EMAIL_SERVICE') ?? '',
+        user: configService.get<string>('EMAIL_USER') ?? '',
+        password: configService.get<string>('EMAIL_PASSWORD') ?? '',
+      }),
+    }),
     // DatabaseModule,
   ],
   controllers: [AppController],

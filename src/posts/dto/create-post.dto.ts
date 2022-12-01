@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -7,7 +7,7 @@ export class CreatePostDto {
 
   @IsNotEmpty()
   @IsString()
-  desciption: string;
+  description: string;
 
   @IsNotEmpty()
   @IsString()
@@ -18,7 +18,9 @@ export class CreatePostDto {
   @IsNotEmpty()
   @IsString()
   content: string;
+
   @IsArray()
   @ArrayNotEmpty()
+  @IsOptional()
   hashTags: string[];
 }

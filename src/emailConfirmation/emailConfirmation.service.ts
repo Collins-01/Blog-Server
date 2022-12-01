@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
+import  UsersService  from 'src/users/users.service';
 import VerificationTokenPayload from './verification-token-payload';
 
 @Injectable()

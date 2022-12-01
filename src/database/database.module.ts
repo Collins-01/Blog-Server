@@ -14,6 +14,7 @@ import DatabaseOptions from './database-options';
   exports: [DatabaseService],
   providers: [
     DatabaseService,
+    //* Creating Pool as a provider for the Database Module. 
     {
       provide: CONNECTION_POOL,
       inject: [DATABASE_OPTIONS],
@@ -30,3 +31,4 @@ import DatabaseOptions from './database-options';
   ],
 })
 export default class DatabaseModule extends ConfigurableDatabaseModule {}
+

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEmailUserDto } from 'src/users/dto/create-email-user.dto';
-import { UsersService } from 'src/users/users.service';
+import UsersService from 'src/users/users.service';
 import { LoginDto } from './dto';
 import * as argon from 'argon2';
 import { JwtAuthService } from './jwt/jwt-auth.service';
@@ -19,7 +19,7 @@ export class AuthService {
 
   async registerWithEmail(dto: CreateEmailUserDto) {
     const data = await this.userService.create(dto);
-    const { hash, isEmailConfirmed, ...user } = data;
+    const { hash, isEmailVerified, ...user } = data;
     const accessToken = this.jwtAuthService.signToken(data);
     return {
       user,
@@ -43,7 +43,7 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials.');
     }
     const { accessToken } = this.jwtAuthService.signToken(res);
-    const { hash, isEmailConfirmed, ...user } = res;
+    const { hash, isEmailVerified, ...user } = res;
     return {
       accessToken,
       user,

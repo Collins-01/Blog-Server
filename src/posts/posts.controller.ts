@@ -21,9 +21,14 @@ import { User } from '@prisma/client';
 import { PageOptions } from 'src/types/pagination';
 
 @Controller('posts')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  @Get('raw_posts')
+  async getRawPosts() {
+    return this.postsService.getRawPosts();
+  }
 
   @Post('create')
   async createPost(
@@ -31,7 +36,7 @@ export class PostsController {
     @Res() res: Response,
     @GetUser() user: User,
   ) {
-    const post = await this.postsService.createPosts(dto, user.id);
+    const post = await this.postsService.createPosts(dto, 1);
     return res.status(201).json({
       status: true,
       data: {
@@ -46,7 +51,7 @@ export class PostsController {
 
     return res.status(200).json({
       status: true,
-      data,
+      ...data
     });
   }
 
