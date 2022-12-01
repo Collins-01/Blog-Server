@@ -13,22 +13,22 @@ import {
 } from 'src/types/pagination';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import PostsRepository from './posts.repository';
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
-  async createPosts(dto: CreatePostDto, userID: string) {
+  constructor(
+    private prisma: PrismaService,
+    private postsRepository: PostsRepository,
+  ) {}
+
+  async getRawPosts() {
+    return this.postsRepository.getAllPosts();
+  }
+
+  async createPosts(dto: CreatePostDto, userID: number) {
     try {
-      const post = await this.prisma.post.create({
-        data: {
-          backgroundImage: dto.backgroundImage,
-          content: dto.content,
-          description: dto.desciption,
-          title: dto.title,
-          userID,
-          hashTags: [...dto.hashTags],
-        },
-      });
+      const post = await this.postsRepository.createPost(dto, userID);
       return post;
     } catch (error) {
       throw new Error(error);
@@ -36,13 +36,18 @@ export class PostsService {
   }
 
   async getAllPosts(pageOptions: PageOptions) {
-    const posts = await this.prisma.post.findMany({
-      take: pageOptions.take,
-      skip: pageOptions.skip,
-    });
-    const itemCount = await this.prisma.post.count();
-    const meta = new Meta({ itemCount, pageOptions });
-    const page = new Page(posts, meta);
+    // const posts = await this.prisma.post.findMany({
+    //   take: pageOptions.take,
+    //   skip: pageOptions.skip,
+    // });
+    const { items, count } = await this.postsRepository.getAllPosts(
+      0,
+      pageOptions.take,
+      0,
+    );
+    // const itemCount = await this.prisma.post.count();
+    const meta = new Meta({ itemCount: count, pageOptions });
+    const page = new Page(items, meta);
     return page;
   }
 
