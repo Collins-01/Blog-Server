@@ -20,4 +20,3 @@ export async function up(knex: Knex): Promise<void> {
       DROP TABLE posts
     `);
   }
-  

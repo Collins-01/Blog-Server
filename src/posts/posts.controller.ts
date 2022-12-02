@@ -20,9 +20,10 @@ import { GetUser } from 'src/auth/decorators/get-current-user.decorator';
 import { User } from '@prisma/client';
 import { PageOptions } from 'src/types/pagination';
 import FindOneParams from 'src/utils/find_one_params';
+import UserModel from 'src/users/models/user.model';
 
 @Controller('posts')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
@@ -35,9 +36,9 @@ export class PostsController {
   async createPost(
     @Body() dto: CreatePostDto,
     @Res() res: Response,
-    @GetUser() user: User,
+    @GetUser() user: UserModel,
   ) {
-    const post = await this.postsService.createPosts(dto, 1);
+    const post = await this.postsService.createPosts(dto, user.id);
     return res.status(201).json({
       status: true,
       data: {

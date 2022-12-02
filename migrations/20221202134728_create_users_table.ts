@@ -7,7 +7,9 @@ export async function up(knex: Knex): Promise<void> {
         email text UNIQUE NOT NULL,
         hash text,
         first_name text NOT NULL,
-        last_name text NOT NULL
+        last_name text NOT NULL,
+        is_social_auth BOOLEAN NOT NULL,
+        is_email_verified BOOLEAN NOT NULL
         
     )
   `);
