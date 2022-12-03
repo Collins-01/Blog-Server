@@ -14,9 +14,9 @@ export default class UsersRepository {
   async createEmailUser(dto: CreateEmailUserDto) {
     try {
       const emailVerified: boolean = false;
-    const social: boolean = false;
-    const response = await this.databaseService.runQuery(
-      `
+      const social: boolean = false;
+      const response = await this.databaseService.runQuery(
+        `
     INSERT INTO  ${this.table} ( 
         email,
         hash,
@@ -30,19 +30,19 @@ export default class UsersRepository {
 
     RETURNING *
     `,
-      [
-        dto.email,
-        dto.password,
-        dto.firstName,
-        dto.lastName,
-        social,
-        emailVerified,
-      ],
-    );
+        [
+          dto.email,
+          dto.password,
+          dto.firstName,
+          dto.lastName,
+          social,
+          emailVerified,
+        ],
+      );
 
-    return new UserModel(response.rows[0]);
+      return new UserModel(response.rows[0]);
     } catch (error) {
-      console.log(`Error is of type:  ${typeof error}`)
+      console.log(`Error is of type:  ${typeof error}`);
       if (isRecord(error) && error.code === PostgresErrorCode.UniqueViolation) {
         throw new UserAlreadyExistsException(dto.email);
       }
@@ -50,7 +50,7 @@ export default class UsersRepository {
     }
   }
 
-  async getUserByID(id: string) {
+  async getUserByID(id: number) {
     const response = await this.databaseService.runQuery(
       `
      SELECT * FROM ${this.table} 
@@ -76,6 +76,25 @@ export default class UsersRepository {
     }
     return new UserModel(response.rows[0]);
   }
+
+  async updatePassword(userId: number, hash: string) {
+    try {
+      const response = await this.databaseService.runQuery(
+        `
+        UPDATE ${this.table}
+        SET hash = $2
+        WHERE  id = $1
+      `,
+        [userId, hash],
+      );
+      console.log(response);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  async confirmEmail() {}
+
+  async forgotPassword() {}
 }
 
 /*

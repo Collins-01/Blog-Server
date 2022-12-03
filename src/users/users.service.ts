@@ -1,4 +1,4 @@
-import {  Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateEmailUserDto } from './dto/create-email-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon from 'argon2';
@@ -20,7 +20,7 @@ export default class UsersService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const user = await this.userRepository.getUserByID(id);
     return user;
   }
@@ -35,5 +35,9 @@ export default class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  updatePassword(userId: number, hash: string) {
+    return this.userRepository.updatePassword(userId, hash);
   }
 }

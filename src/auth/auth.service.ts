@@ -1,14 +1,14 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEmailUserDto } from 'src/users/dto/create-email-user.dto';
 import UsersService from 'src/users/users.service';
-import { LoginDto } from './dto';
+import { LoginDto, UpdatePasswordDto } from './dto';
 import * as argon from 'argon2';
 import { JwtAuthService } from './jwt/jwt-auth.service';
-import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -49,4 +49,30 @@ export class AuthService {
       user,
     };
   }
+  //* Change Password
+
+  async updatePassword(dto: UpdatePasswordDto, userId: number) {
+    try {
+      const user = await this.userService.findOne(userId);
+      if (dto.oldPassword === dto.newPassword) {
+        throw new ForbiddenException(
+          'Old and new passwords must not be the same.',
+        );
+      }
+      const hasMatchOld = await argon.verify(user.hash, dto.oldPassword);
+      if (!hasMatchOld) {
+        throw new BadRequestException('Old passwords do not match.');
+      }
+      const newHash = await argon.hash(dto.oldPassword);
+      await this.userService.updatePassword(userId, newHash);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  
+
+  //* Confirm Email
+  //* Forgot Password
+  // *
 }

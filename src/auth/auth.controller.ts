@@ -1,8 +1,18 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { CreateEmailUserDto } from 'src/users/dto/create-email-user.dto';
+import FindOneParams from 'src/utils/find_one_params';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto';
+import { LoginDto, UpdatePasswordDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,5 +33,14 @@ export class AuthController {
       status: true,
       ...data,
     });
+  }
+
+  @HttpCode(200)
+  @Patch('password-update/:id')
+  async updatePassword(
+    @Body() dto: UpdatePasswordDto,
+    @Param() { id }: FindOneParams,
+  ) {
+    await this.authService.updatePassword(dto, id);
   }
 }
