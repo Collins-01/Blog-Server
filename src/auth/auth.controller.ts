@@ -2,17 +2,20 @@ import {
   Body,
   Controller,
   HttpCode,
-  HttpStatus,
   Param,
   Patch,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { CreateEmailUserDto } from 'src/users/dto/create-email-user.dto';
+import UserModel from 'src/users/models/user.model';
 import FindOneParams from 'src/utils/find_one_params';
 import { AuthService } from './auth.service';
+import { GetUser } from './decorators/get-current-user.decorator';
 import { LoginDto, UpdatePasswordDto } from './dto';
+import { JwtAuthGuard } from './jwt/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -35,12 +38,13 @@ export class AuthController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
   @HttpCode(200)
-  @Patch('password-update/:id')
+  @Patch('update-password')
   async updatePassword(
     @Body() dto: UpdatePasswordDto,
-    @Param() { id }: FindOneParams,
+    @GetUser() user: UserModel,
   ) {
-    await this.authService.updatePassword(dto, id);
+    return await this.authService.updatePassword(dto, user.id);
   }
 }

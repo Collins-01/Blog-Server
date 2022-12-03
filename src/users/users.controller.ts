@@ -3,6 +3,7 @@ import UsersService  from './users.service';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateEmailUserDto } from './dto/create-email-user.dto';
+import FindOneParams from 'src/utils/find_one_params';
 
 @Controller('users')
 export class UsersController {
@@ -16,7 +17,7 @@ export class UsersController {
   
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') {id}: FindOneParams) {
     return this.usersService.findOne(id);
   }
 

@@ -52,7 +52,7 @@ export class AuthService {
   //* Change Password
 
   async updatePassword(dto: UpdatePasswordDto, userId: number) {
-    try {
+    // try {
       const user = await this.userService.findOne(userId);
       if (dto.oldPassword === dto.newPassword) {
         throw new ForbiddenException(
@@ -63,14 +63,16 @@ export class AuthService {
       if (!hasMatchOld) {
         throw new BadRequestException('Old passwords do not match.');
       }
-      const newHash = await argon.hash(dto.oldPassword);
+      const newHash = await argon.hash(dto.newPassword);
       await this.userService.updatePassword(userId, newHash);
-    } catch (error) {
-      throw new Error(error);
-    }
+    // } catch (error) {
+    //   throw new Error(error);
+    // }
   }
 
   
+
+
 
   //* Confirm Email
   //* Forgot Password
