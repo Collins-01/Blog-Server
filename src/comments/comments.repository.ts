@@ -26,7 +26,6 @@ export class CommentsRepository {
         comment_content,
         author_id,
         comment_likes,
-        created_at,
         deletion_date
 
        )
@@ -35,14 +34,14 @@ export class CommentsRepository {
         $2,
         $3,
         $4,
-        $5,
-        $6
+        $5
+        
        )
 
        RETURNING *
 
       `,
-        [dto.postID, dto.content, dto.authorID, 0, Date.now(), null],
+        [dto.postID, dto.content, dto.authorID, 0, null],
       );
 
       return new CommentModel(response.rows[0]);
@@ -94,7 +93,7 @@ export class CommentsRepository {
       const response = await this.databaseService.runQuery(`
         SELECT * FROM ${this.table}
         WHERE post_id = $1 AND id = $2 AND deletion_date = NULL
-      `);
+      `,[postId,commentId]);
       if (!response.rows[0]) {
         throw new NotFoundException();
       }
@@ -102,5 +101,22 @@ export class CommentsRepository {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  async getComments(postId: number) {
+    const response = await this.databaseService.runQuery(
+      `
+      SELECT *  FROM ${this.table}
+      WHERE post_id = $1
+    `,
+      [postId]
+    );
+    console.log(`response.rows:::: ${response.rows[0].post_id}`)
+    if (response.rowCount === 0) {
+      throw new NotFoundException();
+    }
+    const comments= response.rows.map((e) => new CommentModel(e));
+    console.log(`Comments: ${comments.length}`);
+    return comments;
   }
 }

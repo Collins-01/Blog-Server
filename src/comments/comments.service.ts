@@ -27,4 +27,9 @@ export class CommentsService {
   remove(id: number) {
     return this.commentsRepository.deleteComment(id);
   }
+  async getAllComments(postId: number) {
+    const response = await this.commentsRepository.getComments(postId);
+    console.log(`Coments from Service :: ${response}`)
+    return response;
+  }
 }

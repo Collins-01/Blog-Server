@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  Res,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import FindOneParams from 'src/utils/find_one_params';
@@ -15,6 +16,7 @@ import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import FindSingleCommentQuery from './dto/find_single_comment_query.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { Response } from 'express';
 
 @Controller('comments')
 @UseGuards(JwtAuthGuard)
@@ -26,9 +28,21 @@ export class CommentsController {
     return this.commentsService.createComment(createCommentDto);
   }
 
-  @Get('single')
-  findOne(@Query() query: FindSingleCommentQuery) {
-    return this.commentsService.findOne(1, 2);
+  // @Get('all/:id')
+  // findOne(@Param() { id }: FindOneParams) {
+  //   return this.commentsService.findOne(1, 2);
+  // }
+  // * Get All Comments for a post
+  //* comments/postId
+  @Get('all/:id')
+  async getComments(@Param() { id }: FindOneParams, @Res() res: Response) {
+    const comments = await this.commentsService.getAllComments(id);
+    return res.status(200).json({
+      status: true,
+      data: {
+        comments,
+      },
+    });
   }
 
   @Patch(':id')
