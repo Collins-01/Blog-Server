@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import SubscribersRepository from './subscriber.repository';
 
 @Injectable()
 export class SubscribersService {
   constructor(private subscribersRepository: SubscribersRepository) {}
   async subscribe(subId: number, userId: number) {
+    if(subId===userId){
+      throw new BadRequestException('You can not subscribe to your own Blog.')
+    }
     return await this.subscribersRepository.subscribe(subId, userId);
   }
 

@@ -20,7 +20,7 @@ export default class SubscribersRepository {
     `,
         [subscriberId, userId],
       );
-      console.log(`Response from Subscribing: ${response}`);
+      console.log(`Response from Subscribing: ${response.rowCount}`);
     } catch (error) {
       throw new Error(error);
     }
@@ -46,11 +46,12 @@ export default class SubscribersRepository {
     const response = await this.databaseService.runQuery(
       `
         SELECT  COUNT(*)::int FROM ${this.table}
-        WHERE user_id = $1
+        WHERE user_id = $1 
     `,
       [userId],
     );
-    console.log(`Response from Subscribers Count: ${response}`);
-    return 6;
+    console.log(`Response from Subscribers Count: ${response.rows[0].count}`);
+    const count = response.rows[0].count as number;
+    return count;
   }
 }

@@ -4,14 +4,17 @@ import {
   Post,
   Body,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { GetUser } from 'src/auth/decorators/get-current-user.decorator';
 import UserModel from 'src/users/models/user.model';
 import FindOneParams from 'src/utils/find_one_params';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 
 @Controller('subscribers')
+@UseGuards(JwtAuthGuard)
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}
 
