@@ -12,6 +12,7 @@ import DatabaseModule from './database/database.module';
 import * as Joi from 'joi';
 import { APP_PIPE } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SubscribersModule } from './subscribers/subscribers.module';
 
 @Module({
   imports: [
@@ -63,6 +64,8 @@ import { ScheduleModule } from '@nestjs/schedule';
         password: configService.get<string>('EMAIL_PASSWORD') ?? '',
       }),
     }),
+
+    SubscribersModule,
     // DatabaseModule,
   ],
   controllers: [AppController],

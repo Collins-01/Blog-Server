@@ -99,4 +99,19 @@ Table comments_likes {
 
     }
 
+
+    Table profile {
+        id int [ref: > U.id]
+        first_name varchar [ref: > U.first_name]
+        last_name varchar [ref: > U.last_name]
+        subscribers_count int 
+        bio varchar [default: null]
+        hash   varchar
+        is_social_auth bool
+        is_email_verified bool 
+        auth_type Provider [ref: > U.auth_type]
+        avatar int [ref: > U.avatar ]
+        
+    }
+
 Ref : C.author_id > U.id
