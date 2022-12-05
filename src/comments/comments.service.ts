@@ -3,10 +3,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CommentsRepository } from './comments.repository';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import CommentsReactionDto from './reactions/comment_reaction.dto';
+import CommentsReactionRepository from './reactions/comment_reaction.repository';
 
 @Injectable()
 export class CommentsService {
-  constructor(private commentsRepository: CommentsRepository) {}
+  constructor(
+    private commentsRepository: CommentsRepository,
+    private commentsReactionRepository: CommentsReactionRepository,
+  ) {}
   createComment(createCommentDto: CreateCommentDto) {
     return this.commentsRepository.createComment(createCommentDto);
   }
@@ -29,7 +34,14 @@ export class CommentsService {
   }
   async getAllComments(postId: number) {
     const response = await this.commentsRepository.getComments(postId);
-    console.log(`Coments from Service :: ${response}`)
+    console.log(`Coments from Service :: ${response}`);
     return response;
+  }
+  async likeComment(dto: CommentsReactionDto) {
+    return await this.commentsReactionRepository.likeComment(dto);
+  }
+
+  async unlikeComment(dto: CommentsReactionDto) {
+    return await this.commentsReactionRepository.unlikeComment(dto);
   }
 }

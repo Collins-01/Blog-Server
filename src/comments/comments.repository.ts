@@ -90,10 +90,13 @@ export class CommentsRepository {
   // * Get Single Comment for post
   async getSingleCommentForPost(postId: number, commentId: number) {
     try {
-      const response = await this.databaseService.runQuery(`
+      const response = await this.databaseService.runQuery(
+        `
         SELECT * FROM ${this.table}
         WHERE post_id = $1 AND id = $2 AND deletion_date = NULL
-      `,[postId,commentId]);
+      `,
+        [postId, commentId],
+      );
       if (!response.rows[0]) {
         throw new NotFoundException();
       }
@@ -102,21 +105,24 @@ export class CommentsRepository {
       throw new Error(error);
     }
   }
-
+  // * Get All Comments from a Post.
   async getComments(postId: number) {
     const response = await this.databaseService.runQuery(
       `
       SELECT *  FROM ${this.table}
-      WHERE post_id = $1
+      WHERE post_id = $1 AND deletion_date = NULL
     `,
-      [postId]
+      [postId],
     );
-    console.log(`response.rows:::: ${response.rows[0].post_id}`)
+
     if (response.rowCount === 0) {
       throw new NotFoundException();
     }
-    const comments= response.rows.map((e) => new CommentModel(e));
-    console.log(`Comments: ${comments.length}`);
+    const comments = response.rows.map((e) => new CommentModel(e));
+
     return comments;
   }
+  // * LIKE  A COMMENT
+
+  async likeComment(){}
 }
