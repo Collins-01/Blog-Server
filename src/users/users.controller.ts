@@ -4,8 +4,10 @@ import UsersService  from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateEmailUserDto } from './dto/create-email-user.dto';
 import FindOneParams from 'src/utils/find_one_params';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('Users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

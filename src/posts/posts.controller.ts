@@ -21,8 +21,10 @@ import { User } from '@prisma/client';
 import { PageOptions } from 'src/types/pagination';
 import FindOneParams from 'src/utils/find_one_params';
 import UserModel from 'src/users/models/user.model';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('posts')
+@ApiTags('Posts')
 @UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}

@@ -42,11 +42,12 @@ export default class UsersRepository {
 
       return new UserModel(response.rows[0]);
     } catch (error) {
-      console.log(`Error is of type:  ${typeof error}`);
-      if (isRecord(error) && error.code === PostgresErrorCode.UniqueViolation) {
+      console.log(`Error is of type:  ${typeof error.code}`);
+      // isRecord(error) && 
+      if (error.code === PostgresErrorCode.UniqueViolation) {
         throw new UserAlreadyExistsException(dto.email);
       }
-      throw error;
+      throw new Error(error);
     }
   }
 

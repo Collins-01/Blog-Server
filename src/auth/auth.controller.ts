@@ -8,6 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { CreateEmailUserDto } from 'src/users/dto/create-email-user.dto';
 import UserModel from 'src/users/models/user.model';
@@ -18,6 +19,7 @@ import { LoginDto, UpdatePasswordDto } from './dto';
 import { JwtAuthGuard } from './jwt/jwt-auth.guard';
 
 @Controller('auth')
+@ApiTags('Authentication')
 export class AuthController {
   constructor(private authService: AuthService) {}
   @Post('register')

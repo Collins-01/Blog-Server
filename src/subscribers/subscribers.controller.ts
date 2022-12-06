@@ -12,8 +12,10 @@ import UserModel from 'src/users/models/user.model';
 import FindOneParams from 'src/utils/find_one_params';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('subscribers')
+@ApiTags('Subscribers')
 @UseGuards(JwtAuthGuard)
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}

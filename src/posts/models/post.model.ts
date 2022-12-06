@@ -5,6 +5,7 @@ export interface PostModelData {
   author_id: number;
   background_image: string;
   description: string;
+  
 
 }
 

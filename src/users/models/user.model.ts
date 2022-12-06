@@ -1,4 +1,5 @@
-import { Exclude } from "class-transformer";
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 export interface UserModelData {
   id: number;

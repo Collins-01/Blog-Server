@@ -18,8 +18,10 @@ import FindSingleCommentQuery from './dto/find_single_comment_query.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Response } from 'express';
 import CommentsReactionDto from './reactions/comment_reaction.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('comments')
+@ApiTags('Comments')
 @UseGuards(JwtAuthGuard)
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
