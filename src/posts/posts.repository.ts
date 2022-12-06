@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import DatabaseService from 'src/database/database.service';
+import { PageOptions } from 'src/types/pagination';
 import { CreatePostDto } from './dto/create-post.dto';
 import PostModel from './models/post.model';
 
@@ -7,11 +8,7 @@ import PostModel from './models/post.model';
 export default class PostsRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async getAllPosts(
-    offset: number = 0,
-    limit: number | null = null,
-    idsToSkip = 0,
-  ) {
+  async getAllPosts(pageOptions: PageOptions, idsToSkip = 0) {
     const response = await this.databaseService.runQuery(
       `
     WITH selected_posts AS
@@ -27,7 +24,7 @@ export default class PostsRepository {
 
     SELECT * FROM selected_posts, total_posts_count_response
     `,
-      [offset, limit, idsToSkip],
+      [pageOptions.offset, pageOptions.limit, idsToSkip],
     );
     const items = response.rows.map(
       (databaseRow) => new PostModel(databaseRow),
@@ -49,7 +46,6 @@ export default class PostsRepository {
         author_id,
         description,
         background_image
-
       )
 
       VALUES ($1, $2, $3, $4, $5)
@@ -62,17 +58,19 @@ export default class PostsRepository {
     return new PostModel(response.rows[0]);
   }
 
-  async deletePost(id:number) {
-    const response = await this.databaseService.runQuery(`
+  async deletePost(id: number, userId: number) {
+    const response = await this.databaseService.runQuery(
+      `
       DELETE FROM posts
-      WHERE id = $1
+      WHERE id = $1 AND author_id = $2
 
       
-    `,[id]);
-    if(response.rowCount === 0){
+    `,
+      [id, userId],
+    );
+    if (response.rowCount === 0) {
       throw new NotFoundException();
     }
-    
   }
 
   async findPostById(id: number) {
@@ -83,22 +81,44 @@ export default class PostsRepository {
     `,
       [id],
     );
-    console.log(`Response from getting single post: ${response.rows}`)
+    console.log(`Response from getting single post: ${response.rows}`);
     if (!response.rows[0]) {
-      throw new NotFoundException();
+      throw new NotFoundException('Post does not exist.');
     }
     return new PostModel(response.rows[0]);
   }
-  async findPostByAuthorId(id:number){
-    const response = await this.databaseService.runQuery(`
-      SELECT * FROM  posts 
-      WHERE author_id = $1
-    `,[id])
 
-    if(response.rowCount === 0){
-      throw new NotFoundException();
-    }
-    return  response.rows.map((e)=>new PostModel(e))
+  async getAllPostsForUser(
+    pageOptions: PageOptions,
+    idsToSkip = 0,
+    userId: number,
+  ) {
+    const response = await this.databaseService.runQuery(
+      `
+    WITH selected_posts AS
+    (
+      SELECT * FROM posts
+      WHERE id > $3 AND author_id = $4
+      ORDER BY id ASC
+      OFFSET $1
+      LIMIT $2
+    ),
+    total_posts_count_response AS  (
+        SELECT COUNT (*)::int  AS total_posts_counts FROM posts
+    )
+
+    SELECT * FROM selected_posts, total_posts_count_response
+    `,
+      [pageOptions.offset, pageOptions.limit, idsToSkip, userId],
+    );
+    const items = response.rows.map(
+      (databaseRow) => new PostModel(databaseRow),
+    );
+    const count = response.rows[0]?.total_posts_count || 0;
+    return {
+      items,
+      count,
+    };
   }
 }
 

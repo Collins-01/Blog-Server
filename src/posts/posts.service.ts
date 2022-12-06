@@ -22,10 +22,6 @@ export class PostsService {
     private postsRepository: PostsRepository,
   ) {}
 
-  async getRawPosts() {
-    return this.postsRepository.getAllPosts();
-  }
-
   async createPosts(dto: CreatePostDto, userID: number) {
     try {
       const post = await this.postsRepository.createPost(dto, userID);
@@ -36,37 +32,21 @@ export class PostsService {
   }
 
   async getAllPosts(pageOptions: PageOptions) {
-    // const posts = await this.prisma.post.findMany({
-    //   take: pageOptions.take,
-    //   skip: pageOptions.skip,
-    // });
     const { items, count } = await this.postsRepository.getAllPosts(
-      0,
-      pageOptions.take,
+      pageOptions,
       0,
     );
-    // const itemCount = await this.prisma.post.count();
+
     const meta = new Meta({ itemCount: count, pageOptions });
     const page = new Page(items, meta);
     return page;
   }
 
-  async getAllMyPosts(id: string) {
-    const posts = await this.prisma.post.findMany({
-      where: {
-        userID: id,
-      },
-    });
-    return posts;
+  async getAllMyPosts(id: number, pageOptions: PageOptions) {
+    return await this.postsRepository.getAllPostsForUser(pageOptions, 0);
   }
   async findOnePostById(id: number) {
-    const post = await this.postsRepository.findPostById(id);
-    return post;
-  }
-
-  async findOnePostByUserID(id: number) {
-    const posts = await this.postsRepository.findPostByAuthorId(id);
-    return posts;
+    return await this.postsRepository.findPostById(id);
   }
 
   async updatePost(id: string, dto: UpdatePostDto) {
@@ -82,8 +62,7 @@ export class PostsService {
     }
   }
 
-  async deletePost(id: number) {
-    await this.postsRepository.deletePost(id);
-    return `Successfully deleted post ${id}.`;
+  async deletePost(id: number, userId: number) {
+    return await this.postsRepository.deletePost(id, userId);
   }
 }

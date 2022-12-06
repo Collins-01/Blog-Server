@@ -31,3 +31,8 @@ bootstrap();
 
 // * Core Tech StartUp
 // https://medium.com/better-programming/architecture-of-modern-startup-abaec235c2eb
+
+
+
+//* ✅ Methods That are working
+//* Methods  That has not been tested, but new refactored ⭐️
