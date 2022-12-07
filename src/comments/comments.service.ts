@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PageOptions } from 'src/types/pagination';
 import { CommentsRepository } from './comments.repository';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -12,12 +12,17 @@ export class CommentsService {
     private commentsRepository: CommentsRepository,
     private commentsReactionRepository: CommentsReactionRepository,
   ) {}
-  createComment(createCommentDto: CreateCommentDto) {
-    return this.commentsRepository.createComment(createCommentDto);
+  createComment(createCommentDto: CreateCommentDto, userId:number) {
+    return this.commentsRepository.createComment(createCommentDto,userId);
   }
 
-  findCommentsForPost(postId: number) {
-    return this.commentsRepository.getCommentsForPost(postId);
+  findCommentsForPost(postId: number, pageOptions: PageOptions) {
+    const idsToSkip = 0;
+    return this.commentsRepository.getCommentsForPost(
+      postId,
+      pageOptions,
+      idsToSkip,
+    );
   }
 
   findOne(postId: number, commentId: number) {

@@ -3,20 +3,20 @@ import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class UpdatePostDto {
   @IsOptional()
   @IsString()
-  title: string;
+  title?: string | undefined;
 
   @IsOptional()
   @IsString()
-  desciption: string;
+  description?: string | undefined;
 
   @IsOptional()
   @IsString()
-  backgroundImage: string;
+  backgroundImage?: string | undefined;
 
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  content: string;
+  content?: string | undefined;
 
   @IsOptional()
   @IsArray()

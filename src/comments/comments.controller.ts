@@ -19,6 +19,9 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Response } from 'express';
 import CommentsReactionDto from './reactions/comment_reaction.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PageOptions } from 'src/types/pagination';
+import UserModel from 'src/users/models/user.model';
+import { GetUser } from 'src/auth/decorators/get-current-user.decorator';
 
 @Controller('comments')
 @ApiTags('Comments')
@@ -27,15 +30,25 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Post('create')
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.createComment(createCommentDto);
+  create(
+    @Body() createCommentDto: CreateCommentDto,
+    @GetUser() user: UserModel,
+  ) {
+    return this.commentsService.createComment(createCommentDto, user.id);
   }
 
   // * Get All Comments for a post
   //* comments/postId
   @Get('all/:id')
-  async getComments(@Param() { id }: FindOneParams, @Res() res: Response) {
-    const comments = await this.commentsService.getAllComments(id);
+  async getComments(
+    @Param() { id }: FindOneParams,
+    @Res() res: Response,
+    @Query() options: PageOptions,
+  ) {
+    const comments = await this.commentsService.findCommentsForPost(
+      id,
+      options,
+    );
     return res.status(200).json({
       status: true,
       data: {
@@ -44,14 +57,9 @@ export class CommentsController {
     });
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
-  }
-
   @Delete(':id')
   remove(@Param() { id }: FindOneParams) {
-    return this.commentsService.remove(+id);
+    return this.commentsService.remove(id);
   }
 
   @Post('reactions/like')
@@ -65,7 +73,7 @@ export class CommentsController {
 
   @Post('reactions/unlike')
   async unlikeComment(@Body() dto: CommentsReactionDto, @Res() res: Response) {
-     await this.commentsService.likeComment(dto);
+    await this.commentsService.likeComment(dto);
     return res.status(200).json({
       success: true,
       message: `Successfully unliked comment.`,

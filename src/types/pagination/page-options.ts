@@ -6,7 +6,7 @@ export class PageOptions {
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(0)
   @IsOptional()
   readonly offset?: number = 0;
 

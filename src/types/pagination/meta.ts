@@ -14,8 +14,8 @@ export class Meta {
   readonly hasNextPage: boolean;
 
   constructor({ pageOptions, itemCount }: PageMetaParameters) {
-    this.page = pageOptions.page ?? this.page;
-    this.take = pageOptions.take ?? this.take;
+    this.page = pageOptions.offset ?? this.page;
+    this.take = pageOptions.limit ?? this.take;
     this.itemCount = itemCount;
     this.pageCount = Math.ceil(this.itemCount / this.take);
     this.hasPreviousPage = this.page > 1;

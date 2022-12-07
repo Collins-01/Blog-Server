@@ -17,10 +17,7 @@ import PostsRepository from './posts.repository';
 
 @Injectable()
 export class PostsService {
-  constructor(
-    private prisma: PrismaService,
-    private postsRepository: PostsRepository,
-  ) {}
+  constructor(private postsRepository: PostsRepository) {}
 
   async createPosts(dto: CreatePostDto, userID: number) {
     try {
@@ -32,9 +29,10 @@ export class PostsService {
   }
 
   async getAllPosts(pageOptions: PageOptions) {
+    const idToSkip = 0;
     const { items, count } = await this.postsRepository.getAllPosts(
       pageOptions,
-      0,
+      idToSkip,
     );
 
     const meta = new Meta({ itemCount: count, pageOptions });
@@ -43,23 +41,19 @@ export class PostsService {
   }
 
   async getAllMyPosts(id: number, pageOptions: PageOptions) {
-    return await this.postsRepository.getAllPostsForUser(pageOptions, 0);
+    const idToSkip = 0;
+    return await this.postsRepository.getAllPostsForUser(
+      pageOptions,
+      idToSkip,
+      id,
+    );
   }
   async findOnePostById(id: number) {
     return await this.postsRepository.findPostById(id);
   }
 
-  async updatePost(id: string, dto: UpdatePostDto) {
-    try {
-      const post = await this.prisma.post.update({
-        where: {
-          id,
-        },
-        data: {},
-      });
-    } catch (error) {
-      throw new Error(error);
-    }
+  async updatePost(userId: number, dto: UpdatePostDto, postId: number) {
+    return await this.postsRepository.updatePost(dto, userId, postId);
   }
 
   async deletePost(id: number, userId: number) {

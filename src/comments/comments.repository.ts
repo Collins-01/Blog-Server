@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import DatabaseService from 'src/database/database.service';
+import { PageOptions } from 'src/types/pagination';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import CommentModel from './models/comment.model';
 
@@ -17,7 +18,7 @@ export class CommentsRepository {
   }
 
   // * Create Comment
-  async createComment(dto: CreateCommentDto) {
+  async createComment(dto: CreateCommentDto,userId:number) {
     try {
       const response = await this.databaseService.runQuery(
         `
@@ -41,7 +42,7 @@ export class CommentsRepository {
        RETURNING *
 
       `,
-        [dto.postID, dto.content, dto.authorID, 0, null],
+        [dto.postId, dto.content, userId, 0, null],
       );
 
       return new CommentModel(response.rows[0]);
@@ -52,14 +53,22 @@ export class CommentsRepository {
 
   // * Get Comments for Posts
   // TODO: Add Pagination
-  async getCommentsForPost(postId: number) {
+  async getCommentsForPost(
+    postId: number,
+    pageOptions: PageOptions,
+    idsToSkip: number,
+  ) {
     try {
       const response = await this.databaseService.runQuery(
         `
         SELECT * FROM ${this.table}
-        WHERE post_id = $1 AND deletion_date = NULL
+        WHERE post_id = $1 AND id > $4
+        ORDER BY id
+        OFFSET $2
+        LIMIT $3
+        
       `,
-        [postId],
+        [postId, pageOptions.offset, pageOptions.limit, idsToSkip],
       );
       return response.rows.map((e) => new CommentModel(e));
     } catch (error) {
@@ -122,7 +131,21 @@ export class CommentsRepository {
 
     return comments;
   }
-  // * LIKE  A COMMENT
-
-  async likeComment(){}
 }
+
+/*
+SELECT p.*, MAX(r.reaction) AS reaction
+FROM posts p
+JOIN reactions r ON p.post_id = r.post_id
+GROUP BY p.post_id;
+*/
+
+
+
+
+
+/*
+SELECT p.*, r.reaction
+FROM posts p
+JOIN reactions r ON p.post_id = r.post_id;
+*/

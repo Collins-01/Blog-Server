@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import console from 'console';
 import DatabaseService from 'src/database/database.service';
-import { PostReactionType } from './models/post_reaction.model';
+import PostReactionModel, {
+  PostReactionType,
+} from './models/post_reaction.model';
 
 @Injectable()
 export default class PostsReactionsRepository {
@@ -32,9 +33,9 @@ export default class PostsReactionsRepository {
       `,
         [postId, userId, reaction],
       );
-      console.log(`Result from creating a new reaction: ${response.rows[0]}`);
+      console.log(`Result from creating a new reaction: ${response.rowCount}`);
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error.code);
     }
   }
 
@@ -65,6 +66,25 @@ export default class PostsReactionsRepository {
 
     if (!response.rows[0]) {
       throw new NotFoundException('Post does not exist.');
+    }
+  }
+  async getAllReactionsForPost(postId: number) {
+    try {
+      const response = await this.databaseService.runQuery(
+        `
+     SELECT * FROM ${this.table} 
+     WHERE post_id = $1
+
+    `,
+        [postId],
+      );
+      const list = response.rows.map((e) => {
+        return new PostReactionModel(e);
+      });
+      console.log(`Reactions::: ${list[0].userId}`);
+    } catch (error) {
+      console.warn(`Error Code ==== ${error.code}`);
+      throw new Error(error);
     }
   }
 }

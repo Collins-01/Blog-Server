@@ -89,20 +89,6 @@ export class PostsController {
     });
   }
 
-  // @Get('author/:id')
-  // async findOnePostByUserID(
-  //   @Param() { id }: FindOneParams,
-  //   @Res() res: Response,
-  // ) {
-  //   const posts = await this.postsService.findOnePostByUserID(id);
-  //   return res.status(200).json({
-  //     status: true,
-  //     data: {
-  //       ...posts,
-  //     },
-  //   });
-  // }
-
   // ? Written but not tested.
   @Delete(':id')
   async deletePost(
@@ -116,6 +102,24 @@ export class PostsController {
       message: `Successfully deleted  post ${id}.`,
     });
   }
+
+  @Patch(':id')
+  async updatePost(
+    @Body() dto: UpdatePostDto,
+    @Res() res: Response,
+    @GetUser() user: UserModel,
+    @Param() { id }: FindOneParams,
+  ) {
+    const post = await this.postsService.updatePost(user.id, dto, id);
+    return res.status(200).json({
+      status: true,
+      message: `Successfully updated post.`,
+      data: {
+        post,
+      },
+    });
+  }
+
   // *Reactions
 
   // ? Written But not tested.
@@ -161,6 +165,19 @@ export class PostsController {
     return res.status(200).json({
       status: true,
       message: 'Successfully updated your reaction to post.',
+    });
+  }
+
+  @Get('reactions/:id')
+  async getAllReactionsForPost(
+    @Param() { id }: FindOneParams,
+    @Res() res: Response,
+  ) {
+    const response = await this.postsReactionsService.getALlReactionsForPost(
+      id,
+    );
+    return res.status(200).json({
+      status: true,
     });
   }
 }

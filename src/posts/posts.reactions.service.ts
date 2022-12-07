@@ -33,4 +33,7 @@ export default class PostsReactionService {
       reaction,
     );
   }
+  async getALlReactionsForPost(postId: number) {
+    return await this.postsReactionRepository.getAllReactionsForPost(postId);
+  }
 }
