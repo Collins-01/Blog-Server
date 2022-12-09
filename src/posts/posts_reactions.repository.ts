@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import DatabaseService from 'src/database/database.service';
+import PostgresErrorCode from 'src/database/postgres_error_code.enum';
 import PostReactionModel, {
   PostReactionType,
 } from './models/post_reaction.model';
@@ -35,19 +40,28 @@ export default class PostsReactionsRepository {
       );
       console.log(`Result from creating a new reaction: ${response.rowCount}`);
     } catch (error) {
+      if (error.code === PostgresErrorCode.UniqueViolation) {
+        throw new BadRequestException('User has already added a reaction.');
+      }
       throw new Error(error.code);
     }
   }
 
   async removeReaction(postId: number, userId: number) {
-    const response = await this.databaseService.runQuery(`
+    const response = await this.databaseService.runQuery(
+      `
     DELETE FROM ${this.table}
-    WHERE post_id = $1 user_id = $2
-  `);
+    WHERE post_id = $1 AND  user_id = $2
+    RETURNING * 
+  `,
+      [postId, userId],
+    );
     console.log(`Response from removing reaction: ${response.rowCount}`);
-    if (!response.rows[0]) {
-      throw new NotFoundException('Post does not exist.');
+    if (response.rowCount >= 1) {
+      return 'Successfully removed reaction.';
     }
+
+    throw new NotFoundException('Post does not exist.');
   }
 
   async updateReaction(
@@ -60,9 +74,11 @@ export default class PostsReactionsRepository {
      UPDATE ${this.table}
      SET reaction = $3
      WHERE post_id = $1 AND user_id = $2
+     RETURNING * 
     `,
       [postId, userId, reaction],
     );
+    console.log(`RESULT: FROM UPDATING POST REACTION : ${response.rowCount}`);
 
     if (!response.rows[0]) {
       throw new NotFoundException('Post does not exist.');
@@ -81,9 +97,7 @@ export default class PostsReactionsRepository {
       const list = response.rows.map((e) => {
         return new PostReactionModel(e);
       });
-      list.forEach((e) => {
-        console.log(`Reactions::: ${e.reaction}, PostID :::: ${e.postId}, LikerID :::: ${e.userId}`);
-      });
+      return list;
     } catch (error) {
       console.warn(`Error Code ==== ${error.code}`);
       throw new Error(error);

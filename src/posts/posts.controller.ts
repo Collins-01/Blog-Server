@@ -172,11 +172,10 @@ export class PostsController {
     @Param() { id }: FindOneParams,
     @Res() res: Response,
   ) {
-    const response = await this.postsReactionsService.getALlReactionsForPost(
-      id,
-    );
+    const data = await this.postsReactionsService.getALlReactionsForPost(id);
     return res.status(200).json({
       status: true,
+      data,
     });
   }
 }
