@@ -1,14 +1,14 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEmailUserDto } from 'src/users/dto/create-email-user.dto';
-import { UsersService } from 'src/users/users.service';
-import { LoginDto } from './dto';
+import UsersService from 'src/users/users.service';
+import { LoginDto, UpdatePasswordDto } from './dto';
 import * as argon from 'argon2';
 import { JwtAuthService } from './jwt/jwt-auth.service';
-import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +19,7 @@ export class AuthService {
 
   async registerWithEmail(dto: CreateEmailUserDto) {
     const data = await this.userService.create(dto);
-    const { hash, isVerified, ...user } = data;
+    const { hash, isEmailVerified, ...user } = data;
     const accessToken = this.jwtAuthService.signToken(data);
     return {
       user,
@@ -43,10 +43,38 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials.');
     }
     const { accessToken } = this.jwtAuthService.signToken(res);
-    const { hash, isVerified, ...user } = res;
+    const { hash, isEmailVerified, ...user } = res;
     return {
       accessToken,
       user,
     };
   }
+  //* Change Password
+
+  async updatePassword(dto: UpdatePasswordDto, userId: number) {
+    // try {
+      const user = await this.userService.findOne(userId);
+      if (dto.oldPassword === dto.newPassword) {
+        throw new ForbiddenException(
+          'Old and new passwords must not be the same.',
+        );
+      }
+      const hasMatchOld = await argon.verify(user.hash, dto.oldPassword);
+      if (!hasMatchOld) {
+        throw new BadRequestException('Old passwords do not match.');
+      }
+      const newHash = await argon.hash(dto.newPassword);
+      await this.userService.updatePassword(userId, newHash);
+    // } catch (error) {
+    //   throw new Error(error);
+    // }
+  }
+
+  
+
+
+
+  //* Confirm Email
+  //* Forgot Password
+  // *
 }

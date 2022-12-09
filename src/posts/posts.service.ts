@@ -2,85 +2,56 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UseGuards,
 } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  Meta,
+  Page,
+  PageMetaParameters,
+  PageOptions,
+} from 'src/types/pagination';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import PostsRepository from './posts.repository';
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
-  async createPosts(dto: CreatePostDto, userID: string) {
-    try {
-      const post = await this.prisma.post.create({
-        data: {
-          backgroundImage: dto.backgroundImage,
-          content: dto.content,
-          decription: dto.desciption,
-          title: dto.title,
-          userID,
-        },
-      });
-      return post;
-    } catch (error) {
-      throw new Error(error);
-    }
+  constructor(private postsRepository: PostsRepository) {}
+
+  async createPosts(dto: CreatePostDto, userID: number) {
+    return await this.postsRepository.createPost(dto, userID);
   }
 
-  async getAllPosts() {
-    const posts = await this.prisma.post.findMany();
-    return posts;
+  async getAllPosts(pageOptions: PageOptions) {
+    const idToSkip = 0;
+    const { items, count } = await this.postsRepository.getAllPosts(
+      pageOptions,
+      idToSkip,
+    );
+
+    const meta = new Meta({ itemCount: count, pageOptions });
+    const page = new Page(items, meta);
+    return page;
   }
 
-  async getAllMyPosts(id: string) {
-    const posts = await this.prisma.post.findMany({
-      where: {
-        userID: id,
-      },
-    });
-    return posts;
+  async getAllMyPosts(id: number, pageOptions: PageOptions) {
+    const idToSkip = 0;
+    return await this.postsRepository.getAllPostsForUser(
+      pageOptions,
+      idToSkip,
+      id,
+    );
   }
-  async findOnePostById(id: string) {
-    const post = await this.prisma.post.findUnique({
-      where: {
-        id,
-      },
-    });
-    return post;
+  async findOnePostById(id: number) {
+    return await this.postsRepository.findPostById(id);
   }
 
-  async findOnePostByUserID(id: string) {
-    const post = await this.prisma.post.findUnique({
-      where: {
-        userID: id,
-      },
-    });
-    return post;
+  async updatePost(userId: number, dto: UpdatePostDto, postId: number) {
+    return await this.postsRepository.updatePost(dto, userId, postId);
   }
 
-  async updatePost(id: string, dto: UpdatePostDto) {}
-
-  async deletePost(id: string, userID: string) {
-    const post = await this.prisma.post.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (!post) {
-      throw new NotFoundException(`No post found for ${id}`);
-    }
-    if (post.userID === userID) {
-      throw new BadRequestException(
-        `You can only delete a post you created yourself.`,
-      );
-    }
-    const item = await this.prisma.post.delete({
-      where: {
-        id: id,
-      },
-    });
-    return item;
+  async deletePost(id: number, userId: number) {
+    return await this.postsRepository.deletePost(id, userId);
   }
 }

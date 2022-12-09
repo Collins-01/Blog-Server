@@ -11,15 +11,18 @@ datasource db {
 }
 
 model User {
-  id           String   @unique @default(cuid())
-  email        String   @unique
-  hash         String?
-  firstName    String
-  lastName     String
-  provider     Provider @default(email)
-  isSocialAuth Boolean  @default(false)
-  isVerified   Boolean  @default(false)
-  posts Post[]
+  id               String       @unique @default(cuid())
+  email            String       @unique
+  hash             String?
+  firstName        String
+  lastName         String
+  provider         Provider     @default(email)
+  isSocialAuth     Boolean      @default(false)
+  isEmailConfirmed Boolean      @default(false)
+  bio              String       @default("")
+  posts            Post[]
+  subscribers      Subscriber[]
+  comment          Comment[]
 
   @@map("users")
 }
@@ -31,17 +34,64 @@ enum Provider {
   apple
 }
 
+model Profile {
+  id String @unique @default(cuid())
+}
+
 model Post {
-  id              String   @unique @default(cuid())
-  title           String
-  decription      String
-  backgroundImage String
-  content         String
-  hashTags        String[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  userID  String @unique
-  user User  @relation(fields: [userID], references: [id],onDelete: Cascade,onUpdate: Cascade)
+  id          String    @unique @default(cuid())
+  title       String
+  description String
+  // backgroundImage MediaFile 
+  content     String
+  hashTags    String[]
+  views       Int?      @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  authorID    String
+  user        User      @relation(fields: [authorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  comments    Comment[]
 
   @@map("posts")
+}
+
+model Comment {
+  id        String   @unique @default(cuid())
+  comment   String
+  postID    String
+  author    String //FirstName + Lastname
+  authorID  String
+  user      User     @relation(fields: [authorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post?    @relation(fields: [postID], references: [id])
+
+  @@map("comments")
+}
+
+model MediaFile {
+  // id  String @unique @default(cuid())
+  key String @unique
+  url String
+  // authorID String
+  // user     User   @relation(fields: [authorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  type MeidaFileType
+
+  @@map("mediafiles")
+}
+
+enum MeidaFileType {
+  image
+  video
+}
+
+model Subscriber {
+  id             String @unique @default(cuid())
+  authorID       String
+  subscriberID   String @unique
+  subscriberName String
+  user           User   @relation(fields: [authorID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("subscribers")
 }

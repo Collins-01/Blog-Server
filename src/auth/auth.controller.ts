@@ -1,10 +1,25 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { CreateEmailUserDto } from 'src/users/dto/create-email-user.dto';
+import UserModel from 'src/users/models/user.model';
+import FindOneParams from 'src/utils/find_one_params';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto';
+import { GetUser } from './decorators/get-current-user.decorator';
+import { LoginDto, UpdatePasswordDto } from './dto';
+import { JwtAuthGuard } from './jwt/jwt-auth.guard';
 
 @Controller('auth')
+@ApiTags('Authentication')
 export class AuthController {
   constructor(private authService: AuthService) {}
   @Post('register')
@@ -23,5 +38,15 @@ export class AuthController {
       status: true,
       ...data,
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  @Patch('update-password')
+  async updatePassword(
+    @Body() dto: UpdatePasswordDto,
+    @GetUser() user: UserModel,
+  ) {
+    return await this.authService.updatePassword(dto, user.id);
   }
 }

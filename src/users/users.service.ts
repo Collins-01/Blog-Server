@@ -1,57 +1,35 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
 import { CreateEmailUserDto } from './dto/create-email-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon from 'argon2';
+import UserRepository from './users.repository';
+import { DatabaseFilesService } from 'src/database-files/database-files.service';
 
 @Injectable()
-export class UsersService {
-  constructor(private prisma: PrismaService) {}
+export default class UsersService {
+  constructor(
+    private readonly userRepository: UserRepository,
+    private databaseFilesService: DatabaseFilesService,
+  ) {}
   async create(dto: CreateEmailUserDto) {
     try {
-      const hash=  await argon.hash(dto.password);
-      const user = await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          firstName:dto.firstName,
-          lastName:dto.lastName,
-          hash: hash,
-          isSocialAuth: false,
-          provider: 'email',
-
-        },
+      const hash = await argon.hash(dto.password);
+      const user = await this.userRepository.createEmailUser({
+        ...dto,
+        password: hash,
       });
       return user;
     } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException(`A user with ${dto.email} already exists.`);
-      }
       throw new Error(error);
     }
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
-
-  async findOne(id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-    });
+  async findOne(id: number) {
+    const user = await this.userRepository.getUserByID(id);
     return user;
   }
   async findOneByEmail(email: string) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
+    const user = await this.userRepository.getUserByEmail(email);
     return user;
   }
 
@@ -61,5 +39,18 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  updatePassword(userId: number, hash: string) {
+    return this.userRepository.updatePassword(userId, hash);
+  }
+
+  async uploadAvatar(userId: number, buffer: Buffer, fileName: string) {
+    const response = await this.databaseFilesService.uploadDatabaseFiles(
+      buffer,
+      fileName,
+    );
+    await this.userRepository.updateAvatar(response.id, userId);
+    return response;
   }
 }
