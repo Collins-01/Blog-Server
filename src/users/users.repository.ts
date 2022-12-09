@@ -43,7 +43,7 @@ export default class UsersRepository {
       return new UserModel(response.rows[0]);
     } catch (error) {
       console.log(`Error is of type:  ${typeof error.code}`);
-      // isRecord(error) && 
+      // isRecord(error) &&
       if (error.code === PostgresErrorCode.UniqueViolation) {
         throw new UserAlreadyExistsException(dto.email);
       }
@@ -96,6 +96,24 @@ export default class UsersRepository {
   async confirmEmail() {}
 
   async forgotPassword() {}
+
+  async updateAvatar(avatarId: number, userId: number) {
+    const response = await this.databaseService.runQuery(
+      `
+      UPDATE ${this.table}
+      SET avatar_id = $1
+      WHERE id = $2
+
+      RETURNING *
+    `,
+      [avatarId, userId],
+    );
+    console.log(`Error From Updating AVATAR: ${response.rows.length}`)
+    if (!response.rows[0]) {
+      throw new NotFoundException();
+    }
+    
+  }
 }
 
 /*

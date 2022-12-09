@@ -20,12 +20,7 @@ export class PostsService {
   constructor(private postsRepository: PostsRepository) {}
 
   async createPosts(dto: CreatePostDto, userID: number) {
-    try {
-      const post = await this.postsRepository.createPost(dto, userID);
-      return post;
-    } catch (error) {
-      throw new Error(error);
-    }
+    return await this.postsRepository.createPost(dto, userID);
   }
 
   async getAllPosts(pageOptions: PageOptions) {

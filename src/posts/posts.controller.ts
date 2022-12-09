@@ -17,7 +17,6 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { Response } from 'express';
 import { GetUser } from 'src/auth/decorators/get-current-user.decorator';
-import { User } from '@prisma/client';
 import { PageOptions } from 'src/types/pagination';
 import FindOneParams from 'src/utils/find_one_params';
 import UserModel from 'src/users/models/user.model';

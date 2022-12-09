@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import DatabaseService from 'src/database/database.service';
 import CommentsReactionDto from './comment_reaction.dto';
 
@@ -6,7 +6,7 @@ import CommentsReactionDto from './comment_reaction.dto';
 export default class CommentsReactionRepository {
   constructor(private databaseService: DatabaseService) {}
   table = 'comments-reactions';
-  async likeComment(dto: CommentsReactionDto) {
+  async likeComment(dto: CommentsReactionDto,userId:number) {
     const response = await this.databaseService.runQuery(
       `
             INSERT INTO ${this.table} ( 
@@ -22,19 +22,21 @@ export default class CommentsReactionRepository {
             RETURNING *
 
         `,
-      [dto.commentId, dto.likerId],
+      [dto.commentId,userId],
     );
     console.log(`Response from Liking Comment: ${response}`);
   }
 
-  async unlikeComment(dto: CommentsReactionDto) {
+  async unlikeComment(dto: CommentsReactionDto,userId:number) {
     const response = await this.databaseService.runQuery(
       `
         DELETE FROM ${this.table}
         WHERE comment_id = $1 AND liker_id = $2
     `,
-      [dto.commentId, dto.likerId],
+      [dto.commentId, userId],
     );
-    console.log(`Response from UnLiking Comment: ${response}`);
+    if(response.rowCount ===0){
+      throw new NotFoundException('Comment not found.')
+    }
   }
 }

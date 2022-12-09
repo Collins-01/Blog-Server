@@ -81,7 +81,9 @@ export default class PostsReactionsRepository {
       const list = response.rows.map((e) => {
         return new PostReactionModel(e);
       });
-      console.log(`Reactions::: ${list[0].userId}`);
+      list.forEach((e) => {
+        console.log(`Reactions::: ${e.reaction}, PostID :::: ${e.postId}, LikerID :::: ${e.userId}`);
+      });
     } catch (error) {
       console.warn(`Error Code ==== ${error.code}`);
       throw new Error(error);

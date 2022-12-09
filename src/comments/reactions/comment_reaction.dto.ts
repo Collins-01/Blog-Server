@@ -1,13 +1,9 @@
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, Min } from 'class-validator';
 
 export default class CommentsReactionDto {
   @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
+  @Transform(({ value }) => Number(value))
   commentId: number;
 
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  likerId: number;
 }

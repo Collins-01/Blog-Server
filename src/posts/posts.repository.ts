@@ -31,7 +31,8 @@ export default class PostsRepository {
     const items = response.rows.map(
       (databaseRow) => new PostModel(databaseRow),
     );
-    const count = response.rows[0]?.total_posts_count || 0;
+    const count = response.rows[0]?.total_posts_counts || 0;
+    console.log(`Counts from Get all posts: ${count}`);
     return {
       items,
       count,
@@ -39,25 +40,35 @@ export default class PostsRepository {
   }
 
   async createPost(dto: CreatePostDto, authorId: number) {
-    const response = await this.databaseService.runQuery(
-      ` 
-      INSERT INTO  posts  
-      (
-        title,
-        post_content,
-        author_id,
-        description,
-        background_image
-      )
-
-      VALUES ($1, $2, $3, $4, $5)
-
-      RETURNING * 
-      `,
-      [dto.title, dto.content, authorId, dto.description, dto.backgroundImage],
-    );
-    console.log(response.rows[0]);
-    return new PostModel(response.rows[0]);
+    try {
+      const response = await this.databaseService.runQuery(
+        ` 
+        INSERT INTO  posts  
+        (
+          title,
+          post_content,
+          author_id,
+          description,
+          background_image
+        )
+  
+        VALUES ($1, $2, $3, $4, $5)
+  
+        RETURNING * 
+        `,
+        [
+          dto.title,
+          dto.content,
+          authorId,
+          dto.description,
+          dto.backgroundImage,
+        ],
+      );
+      console.log(response.rows[0]);
+      return new PostModel(response.rows[0]);
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   async deletePost(id: number, userId: number) {
@@ -69,7 +80,7 @@ export default class PostsRepository {
     `,
       [id, userId],
     );
-    
+
     if (response.rowCount === 0) {
       throw new NotFoundException();
     }

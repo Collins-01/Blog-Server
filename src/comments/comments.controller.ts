@@ -14,8 +14,6 @@ import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import FindOneParams from 'src/utils/find_one_params';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import FindSingleCommentQuery from './dto/find_single_comment_query.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Response } from 'express';
 import CommentsReactionDto from './reactions/comment_reaction.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -58,13 +56,21 @@ export class CommentsController {
   }
 
   @Delete(':id')
-  remove(@Param() { id }: FindOneParams) {
-    return this.commentsService.remove(id);
+  async remove(@Param() { id }: FindOneParams, @Res() response: Response) {
+    await this.commentsService.remove(id);
+    return response.status(200).json({
+      status: true,
+      message: `Successfully deleted comment.`,
+    });
   }
 
   @Post('reactions/like')
-  async likeComment(@Body() dto: CommentsReactionDto, @Res() res: Response) {
-    await this.commentsService.likeComment(dto);
+  async likeComment(
+    @Body() dto: CommentsReactionDto,
+    @Res() res: Response,
+    @GetUser() user: UserModel,
+  ) {
+    await this.commentsService.likeComment(dto, user.id);
     return res.status(200).json({
       success: true,
       message: `Reacted to comment successfully.`,
@@ -72,8 +78,8 @@ export class CommentsController {
   }
 
   @Post('reactions/unlike')
-  async unlikeComment(@Body() dto: CommentsReactionDto, @Res() res: Response) {
-    await this.commentsService.likeComment(dto);
+  async unlikeComment(@Body() dto: CommentsReactionDto, @Res() res: Response,@GetUser() user: UserModel,) {
+    await this.commentsService.unlikeComment(dto,user.id)
     return res.status(200).json({
       success: true,
       message: `Successfully unliked comment.`,

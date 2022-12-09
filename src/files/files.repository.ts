@@ -5,7 +5,7 @@ import DatabaseService from 'src/database/database.service';
 export default class FilesRepository {
   constructor(private databaseService: DatabaseService) {}
 
-  async createFile() {}
+  async createFile(key: string, location: string) {}
 
   async deleteFile() {}
 }

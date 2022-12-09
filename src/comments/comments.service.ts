@@ -42,11 +42,11 @@ export class CommentsService {
     console.log(`Coments from Service :: ${response}`);
     return response;
   }
-  async likeComment(dto: CommentsReactionDto) {
-    return await this.commentsReactionRepository.likeComment(dto);
+  async likeComment(dto: CommentsReactionDto,userId:number) {
+    return await this.commentsReactionRepository.likeComment(dto,userId);
   }
 
-  async unlikeComment(dto: CommentsReactionDto) {
-    return await this.commentsReactionRepository.unlikeComment(dto);
+  async unlikeComment(dto: CommentsReactionDto,userId:number) {
+    return await this.commentsReactionRepository.unlikeComment(dto,userId);
   }
 }

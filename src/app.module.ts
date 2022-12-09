@@ -13,6 +13,7 @@ import * as Joi from 'joi';
 import { APP_PIPE } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SubscribersModule } from './subscribers/subscribers.module';
+import { DatabaseFilesModule } from './database-files/database-files.module';
 
 @Module({
   imports: [
@@ -29,6 +30,10 @@ import { SubscribersModule } from './subscribers/subscribers.module';
         EMAIL_SERVICE: Joi.string().required(),
         EMAIL_USER: Joi.string().required(),
         EMAIL_PASSWORD: Joi.string().required(),
+        // * AWS
+        // AWS_REGION: Joi.string().required(),
+        // AWS_ACCESS_KEY_ID: Joi.string().required(),
+        // AWS_SECRET_ACCESS_KEY: Joi.string().required(),
       }),
     }),
     DatabaseModule.forRootAsync({
@@ -66,6 +71,8 @@ import { SubscribersModule } from './subscribers/subscribers.module';
     }),
 
     SubscribersModule,
+
+    DatabaseFilesModule,
     // DatabaseModule,
   ],
   controllers: [AppController],

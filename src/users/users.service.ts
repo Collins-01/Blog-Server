@@ -3,10 +3,14 @@ import { CreateEmailUserDto } from './dto/create-email-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as argon from 'argon2';
 import UserRepository from './users.repository';
+import { DatabaseFilesService } from 'src/database-files/database-files.service';
 
 @Injectable()
 export default class UsersService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private databaseFilesService: DatabaseFilesService,
+  ) {}
   async create(dto: CreateEmailUserDto) {
     try {
       const hash = await argon.hash(dto.password);
@@ -39,5 +43,14 @@ export default class UsersService {
 
   updatePassword(userId: number, hash: string) {
     return this.userRepository.updatePassword(userId, hash);
+  }
+
+  async uploadAvatar(userId: number, buffer: Buffer, fileName: string) {
+    const response = await this.databaseFilesService.uploadDatabaseFiles(
+      buffer,
+      fileName,
+    );
+    await this.userRepository.updateAvatar(response.id, userId);
+    return response;
   }
 }

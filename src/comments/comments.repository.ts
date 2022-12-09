@@ -18,7 +18,7 @@ export class CommentsRepository {
   }
 
   // * Create Comment
-  async createComment(dto: CreateCommentDto,userId:number) {
+  async createComment(dto: CreateCommentDto, userId: number) {
     try {
       const response = await this.databaseService.runQuery(
         `
@@ -77,22 +77,16 @@ export class CommentsRepository {
   }
   // * Delete Comment
   async deleteComment(comment_id: number) {
-    try {
-      const response = await this.databaseService.runQuery(
-        `
-        UPDATE ${this.table} 
-        SET deletion_date = now()
-        WHERE id = $1 AND deletion_date = NULL
-        RETURNING *
-      `,
-        [comment_id],
-      );
+    const response = await this.databaseService.runQuery(
+      `
+      DELETE FROM ${this.table} 
+      WHERE id = $1
+    `,
+      [comment_id],
+    );
 
-      if (response.rowCount === 0) {
-        throw new NotFoundException();
-      }
-    } catch (error) {
-      throw new Error(error);
+    if (response.rowCount === 0) {
+      throw new NotFoundException();
     }
   }
 
@@ -139,10 +133,6 @@ FROM posts p
 JOIN reactions r ON p.post_id = r.post_id
 GROUP BY p.post_id;
 */
-
-
-
-
 
 /*
 SELECT p.*, r.reaction
