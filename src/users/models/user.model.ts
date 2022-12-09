@@ -12,7 +12,19 @@ export interface UserModelData {
 }
 
 export default class UserModel {
+  @ApiProperty({
+    name: 'Unique Primary Key for each user.', 
+    example : '1',
+    
+  })
   id: number;
+
+
+  @ApiProperty({
+    name: 'User Unique email address', 
+    example : 'testting01@gmail.com',
+    
+  })
   email: string;
   @Exclude()
   hash: string;

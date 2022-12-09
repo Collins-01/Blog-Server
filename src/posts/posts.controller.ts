@@ -34,6 +34,15 @@ export class PostsController {
     private postsReactionsService: PostsReactionService,
   ) {}
 
+  @Get('with_reactions')
+  async fetchPostsWithReactions(@Res() res: Response) {
+    const data = await this.postsService.fetchPostsWithReactions();
+    return res.status(200).json({
+      status: true,
+      data,
+    });
+  }
+
   //* ✅
   @Post('create')
   async createPost(

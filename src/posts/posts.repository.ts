@@ -179,4 +179,26 @@ export default class PostsRepository {
 
     return new PostModel(response.rows[0]);
   }
+
+  async fetchPostsWithReactions() {
+    const result = await this.databaseService.runQuery(`
+      SELECT p.*, COUNT(r.post_id) AS like_count
+      FROM posts p
+      JOIN posts_reactions r ON p.id = r.post_id
+      GROUP BY p.id
+  `);
+    // const data = result.rows[0];
+    // console.log(
+    //   `Response from Fetching Posts With Reactions: ${result.fields}`,
+    // );
+
+    return result.rows;
+  }
 }
+
+/*
+  SELECT p.*, COUNT(r.post_id) AS reaction_count
+      FROM posts p
+      JOIN posts_reactions r ON p.id = r.post_id
+      GROUP BY p.id
+*/

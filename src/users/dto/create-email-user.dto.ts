@@ -4,24 +4,43 @@ import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from "class-vali
 import { truncate } from "fs/promises";
 
 export class CreateEmailUserDto {
-  @IsNotEmpty()
-  @IsEmail()
+  
 
   @ApiProperty({
     name: 'Unique Email Address for each user..', 
     example : 'testing01@gmail.com',
-    deprecated: true
+    
   })
+  @IsNotEmpty()
+  @IsEmail()
   email: string;
 
+  @ApiProperty({
+    name: 'First Name', 
+    example : 'Micheal',
+    
+  })
   @IsNotEmpty()
   @IsString()
   firstName: string;
 
+
+  @ApiProperty({
+    name: 'Last Name', 
+    example : 'Scoffield',
+    
+  })
   @IsNotEmpty()
   @IsString()
   lastName: string;
 
+
+
+  @ApiProperty({
+    name: 'My Password', 
+    example : 'very strong password',
+    
+  })
   @IsNotEmpty()
   @IsString()
   password: string;
