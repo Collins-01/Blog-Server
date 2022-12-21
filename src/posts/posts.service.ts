@@ -54,4 +54,7 @@ export class PostsService {
   async deletePost(id: number, userId: number) {
     return await this.postsRepository.deletePost(id, userId);
   }
+  async fetchPostsWithReactions() {
+    return await this.postsRepository.fetchPostsWithReactions();
+  }
 }

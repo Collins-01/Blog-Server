@@ -1,8 +1,8 @@
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 import { config } from 'aws-sdk';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,10 +33,3 @@ async function bootstrap() {
 }
 bootstrap();
 
-// git@github.com-personal:Collins-01/Blog-Server.git
-
-// * Core Tech StartUp
-// https://medium.com/better-programming/architecture-of-modern-startup-abaec235c2eb
-
-//* ✅ Methods That are working
-//* Methods  That has not been tested, but new refactored ⭐️
